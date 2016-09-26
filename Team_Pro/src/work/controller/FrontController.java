@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import work.util.Utility;
+import work.model.dto.CoupleDTO;
 import work.model.dto.Member;
 import work.model.service.MatchingService;
 import work.model.service.MemberService;
@@ -218,10 +219,9 @@ public class FrontController extends HttpServlet {
 		System.out.println("coupleNo "+temp.get("coupleNo"));
 		System.out.println("confirmNo "+temp.get("confirmNo"));
 
-		if(temp != null) {
-			request.setAttribute("coupleNo", temp.get("coupleNo"));
-			session.setAttribute("coupleNo", temp.get("coupleNo").toString());
-			request.setAttribute("confirmNo", temp.get("confirmNo"));
+		request.setAttribute("coupleNo", temp.get("coupleNo"));
+		session.setAttribute("coupleNo", temp.get("coupleNo").toString());
+		request.setAttribute("confirmNo", temp.get("confirmNo"));
 
 			try {
 				request.getRequestDispatcher("coupleGetNum.jsp").forward(request, response);
@@ -232,12 +232,39 @@ public class FrontController extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {
+
+	}
+	
+	protected void coupleSetNum(HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session = request.getSession(false);
+		String coupleNo = request.getParameter("coupleNo");
+		String confirmNo = request.getParameter("confirmNo");
+		String coupleName = request.getParameter("coupleName");
+		
+		CoupleDTO dto = new CoupleDTO(Integer.parseInt(coupleNo), confirmNo, coupleName);
+		
+		if((String)session.getAttribute("coupleNo") == coupleNo) {
 			try {
-				response.sendRedirect("error.html");
+				response.sendRedirect("coupleSetResult.jsp");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+		} else {
+			if (matching.connectCoupleKey((String)session.getAttribute("userId"), dto)){
+				try {
+					response.sendRedirect("coupleSetResult.jsp?state=1");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					response.sendRedirect("coupleSetResult.jsp");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -274,6 +301,10 @@ protected void process(HttpServletRequest request, HttpServletResponse response)
 		case "coupleGetNum":
 			coupleGetNum(request, response);
 			break;
+		case "coupleSetNum":
+			coupleSetNum(request, response);
+			break;
+			
 
 
 		default:
@@ -290,6 +321,7 @@ protected void process(HttpServletRequest request, HttpServletResponse response)
  */ 
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
+	request.setCharacterEncoding("utf-8");
 	process(request, response);
 }
 
@@ -300,7 +332,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
 protected void doPost(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
 	// 요청객체에 대한 한글 인코딩 설정
-	request.setCharacterEncoding("euc-kr");
+	request.setCharacterEncoding("utf-8");
 	process(request, response);
 }
 }

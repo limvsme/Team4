@@ -8,7 +8,8 @@
 <title>타이틀을 입력하세요</title>
 </head>
 <body>
-<% if(request.getParameter("state").equals("1")) { %>
+<% String temp = request.getParameter("state");
+if(temp != null && temp.equals("1")) { %>
 매칭에 성공하였습니다.
 <%} else {%>
 매칭에 실패하였습니다. 

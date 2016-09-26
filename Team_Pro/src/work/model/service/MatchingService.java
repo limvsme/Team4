@@ -7,7 +7,7 @@ import work.util.Utility;
 
 public class MatchingService {
 	private CoupleDAO couple = CoupleDAO.getInstance();
-	
+
 
 	/*
 	 * 상황1. (일)커플번호를 가지고 있고 (1) (이)커플임.
@@ -73,7 +73,7 @@ public class MatchingService {
 			return temp;
 		}
 	}
-	
+
 	/**
 	 * 인증번호를 입력해 커플연결을 완료한다.
 	 * 주의!! 컨트롤러에서 본인 인증번호를 입력하는걸 막아줘야함!!
@@ -82,17 +82,13 @@ public class MatchingService {
 	 * @return 성공여부
 	 */
 	public boolean connectCoupleKey (String id, CoupleDTO dto) {
-		if(couple.updateCoupleName(dto) == 1){
-			if(couple.updateMyCoupleNo(dto.getCoupleNo(), id) == 1){
+		if(couple.selectAreYouCouple(dto.getCoupleNo()) != 2){
+			if(couple.updateCoupleName(dto) == 1 && couple.updateMyCoupleNo(dto.getCoupleNo(), id) == 1){
 				return true;
 			} else {
 				return false;
-			}
-		} else {
-			return false;
+			} 
 		}
+		return false;
 	}
-	
-	
-
 }
