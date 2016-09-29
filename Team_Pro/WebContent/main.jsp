@@ -1,9 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="work.model.service.MainService" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="work.model.dto.BudgetPaperDTO" %>
-<% MainService service = new MainService();
-ArrayList<BudgetPaperDTO> list = service.getBudget(Integer.parseInt((String)session.getAttribute("coupleNo")));
+<%@ page import="work.model.service.MainService"%>
+<%@ page import="java.util.ArrayList"%>
+<%@ page import="work.model.dto.BudgetPaperDTO"%>
+<%
+	MainService service = new MainService();
+	ArrayList<BudgetPaperDTO> list = service
+			.getBudget(Integer.parseInt((String) session.getAttribute("coupleNo")));
 %>
 <!DOCTYPE html>
 <html>
@@ -57,10 +59,9 @@ html, body, h1, h2, h3, h4, h5 {
 				<!-- Profile -->
 				<div class="w3-card-2 w3-round w3-white">
 					<div class="w3-container">
-						<h4 class="w3-center"><%=session.getAttribute("userId") %>님</h4>
-						<p class="w3-center">
-							
-						</p>
+						<h4 class="w3-center"><%=session.getAttribute("userId")%>님
+						</h4>
+						<p class="w3-center"></p>
 						<hr>
 						<p>
 							<i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i> Designer, UI
@@ -96,24 +97,12 @@ html, body, h1, h2, h3, h4, h5 {
 						<div id="Demo3" class="w3-accordion-content w3-container">
 							<div class="w3-row-padding">
 								<br>
-								<div class="w3-half">
-
-								</div>
-								<div class="w3-half">
-
-								</div>
-								<div class="w3-half">
-
-								</div>
-								<div class="w3-half">
-
-								</div>
-								<div class="w3-half">
-
-								</div>
-								<div class="w3-half">
-
-								</div>
+								<div class="w3-half"></div>
+								<div class="w3-half"></div>
+								<div class="w3-half"></div>
+								<div class="w3-half"></div>
+								<div class="w3-half"></div>
+								<div class="w3-half"></div>
 							</div>
 						</div>
 					</div>
@@ -135,56 +124,64 @@ html, body, h1, h2, h3, h4, h5 {
 							<div class="w3-container w3-padding">
 								<h6 class="w3-opacity">예산 제목 추가하기</h6>
 								<form action="Controller">
-								<input type="hidden" name="action" value="budgetRegister">
-								<input name="budgetPaperName" class="w3-input w3-border w3-padding w3-round-large w3-margin-bottom" placeholder="예)이번 주말 데이트 예산">
-								<button type="submit" class="w3-btn w3-theme">
-									<i class="fa fa-pencil"></i>추가
-								</button>
+									<input type="hidden" name="action" value="budgetRegister">
+									<input name="budgetPaperName" class="w3-input w3-border w3-padding w3-round-large w3-margin-bottom" placeholder="예)이번 주말 데이트 예산">
+									<button type="submit" class="w3-btn w3-theme">
+										<i class="fa fa-pencil"></i>추가
+									</button>
 								</form>
 							</div>
 						</div>
 					</div>
 				</div>
-<% for(int i=0 ; i<list.size() ; i++) { %>
+				<%
+					for (int i = 0; i < list.size(); i++) {
+				%>
 				<div class="w3-container w3-card-2 w3-white w3-round w3-margin">
-				<br>
-					<h4 class="w3-left debitstitle"><%= list.get(i).getBudgetPaperName() %></h4>
 					<br>
-					 <span class="w3-right">예산 총액 20만원</span>
+					<h4 class="w3-left debitstitle"><%=list.get(i).getBudgetPaperName()%></h4>
 					<br>
-					<span class="w3-right">수락 총액 20만원</span>
+					<span class="w3-right">예산 총액 <%= list.get(i).getAmountSum() %>원</span>
+					<br>
+					<span class="w3-right">수락 총액 <%= list.get(i).getAmountYSum() %>원</span>
 					<hr class="w3-clear">
 					<span class="debits">
-					<table class="w3-table-all w3-margin-bottom">
-						<tr>
-							<th>분류</th>
-							<th>내용</th>
-							<th>금액</th>
-							<th></th>
+						<table class="w3-table-all w3-margin-bottom">
+							<tr>
+								<th>분류</th>
+								<th>내용</th>
+								<th>금액</th>
+								<th></th>
 
-						</tr>
-						<tr>
-							<td>쇼핑</td>
-							<td>코스트코 가기<button class="w3-btn">댓글</button></td>
-							<td>50000</td>
-							<td><button class="w3-btn">삭제</button>
-						</tr>
-						<tr>
-							<td>식사</td>
-							<td>식당 가기<button class="w3-btn">댓글</button></td>
-							<td>10000</td>
-							<td><button class="w3-btn">수락</button></td>
-						</tr>
-						<tr>
-						<td><input class="w3-input" placeholder="신규항목 분류입력"></td>
-						<td><input class="w3-input" placeholder="신규항목 내용입력"></td>
-						<td><input class="w3-input" placeholder="신규항목 금액입력"></td>
-						<td><button class="w3-btn">저장</button></td>
-						</tr>
-					</table>
+							</tr>
+							<tr>
+								<td>쇼핑</td>
+								<td>코스트코 가기
+									<button class="w3-btn">댓글</button>
+								</td>
+								<td>50000</td>
+								<td><button class="w3-btn">삭제</button>
+							</tr>
+							<tr>
+								<td>식사</td>
+								<td>식당 가기
+									<button class="w3-btn">댓글</button>
+								</td>
+								<td>10000</td>
+								<td><button class="w3-btn">수락</button></td>
+							</tr>
+							<tr>
+								<td><input class="w3-input" placeholder="신규항목 분류입력"></td>
+								<td><input class="w3-input" placeholder="신규항목 내용입력"></td>
+								<td><input class="w3-input" placeholder="신규항목 금액입력"></td>
+								<td><button class="w3-btn">저장</button></td>
+							</tr>
+						</table>
 					</span>
 				</div>
-<%} %>
+				<%
+					}
+				%>
 				<!-- End Middle Column -->
 			</div>
 
@@ -235,11 +232,11 @@ html, body, h1, h2, h3, h4, h5 {
 	</script>
 
 
-<script type="text/javascript">
-$(".debits").hide();
-$(".debitstitle").click(function(){
-    $(this).next().next().next().next().next().next().toggle();
-});
-</script>
+	<script type="text/javascript">
+		$(".debits").hide();
+		$(".debitstitle").click(function() {
+			$(this).next().next().next().next().next().next().toggle();
+		});
+	</script>
 </body>
 </html>

@@ -51,4 +51,56 @@ public class MainDAO {
 		}
 		return null;
 	}
+	
+	public int selectAllSum(int budgetPaperNo) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			conn = factory.getConnection();
+			String sql = "select nvl(sum(budget_amount),0) from budget_list where budget_paper_no=?";
+
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, budgetPaperNo);
+
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+
+		} catch(SQLException e) {
+			System.out.println("예산항목의 총합(전체) > SQLException");
+			e.printStackTrace();
+		} finally {
+			factory.close(conn, pstmt, rs);
+		}
+		return -1;
+	}
+	
+	public int selectYSum(int budgetPaperNo) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			conn = factory.getConnection();
+			String sql = "select nvl(sum(budget_amount),0) from budget_list where budget_paper_no=? and budget_yn='Y'";
+
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, budgetPaperNo);
+
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+
+		} catch(SQLException e) {
+			System.out.println("예산항목의 총합(전체) > SQLException");
+			e.printStackTrace();
+		} finally {
+			factory.close(conn, pstmt, rs);
+		}
+		return -1;
+	}
 }
