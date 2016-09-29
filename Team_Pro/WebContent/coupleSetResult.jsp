@@ -9,8 +9,8 @@
 </head>
 <body>
 <% String temp = request.getParameter("state");
-if(temp != null && temp.equals("1")) { %>
-매칭에 성공하였습니다.
+if(temp != null && temp.equals("1")) { session.setAttribute("coupleYN", "Y"); %>
+매칭에 성공하였습니다. <a href="main.jsp">시작하기</a>
 <%} else {%>
 매칭에 실패하였습니다. 
 <%} %>

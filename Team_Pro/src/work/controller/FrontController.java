@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import work.util.Utility;
 import work.model.dto.CoupleDTO;
 import work.model.dto.Member;
+import work.model.service.BudgetService;
 import work.model.service.MatchingService;
 import work.model.service.MemberService;
 /*import work.util.Utility;*/
@@ -27,7 +28,7 @@ public class FrontController extends HttpServlet {
 
 	private MemberService userService = new MemberService();
 	private MatchingService matching = new MatchingService();
-	String AllUserId = null;
+	private BudgetService budget = new BudgetService();
 
 	/**
 	 * 내정보조회 요청 서비스 메서드 -- 로그인 회원의 내정보 조회 -- session 설정된 로그인 회원의 아이디
@@ -73,7 +74,6 @@ public class FrontController extends HttpServlet {
 			throws ServletException, IOException {
 		// 요청데이터 추출 : 로그인요청view login.jsp
 		String userId = request.getParameter("userId");
-		AllUserId = userId;
 		String userPw = request.getParameter("userPw");
 
 		System.out.println("userId : " + userId);
@@ -107,7 +107,10 @@ public class FrontController extends HttpServlet {
 			session.setAttribute("coupleNo", loginMap.get("coupleNo"));
 
 			if(!matching.coupleYN(Integer.parseInt((String)session.getAttribute("coupleNo")))){
+				session.setAttribute("coupleYN", "Y");
 				response.sendRedirect("coupleGetSet.html"); 
+			} else {
+				response.sendRedirect("main.jsp");
 			}
 
 			//request.getRequestDispatcher("LoginSuccess.jsp").forward(request, response);
@@ -212,7 +215,7 @@ public class FrontController extends HttpServlet {
 		}
 	}
 
-	protected void coupleGetNum(HttpServletRequest request, HttpServletResponse response){
+	protected void coupleGetNum(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		HttpSession session = request.getSession(false);
 		String te = (String)session.getAttribute("coupleNo");
 		HashMap<String, Object> temp = matching.makeCoupleKey((String)session.getAttribute("userId"), Integer.parseInt(te));
@@ -222,27 +225,33 @@ public class FrontController extends HttpServlet {
 		request.setAttribute("coupleNo", temp.get("coupleNo"));
 		session.setAttribute("coupleNo", temp.get("coupleNo").toString());
 		request.setAttribute("confirmNo", temp.get("confirmNo"));
-
-			try {
-				request.getRequestDispatcher("coupleGetNum.jsp").forward(request, response);
-			} catch (ServletException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		
+			request.getRequestDispatcher("coupleGetNum.jsp").forward(request, response);
 
 	}
-	
+
+	protected void budgetRegister(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		HttpSession session = request.getSession(false);
+		int coupleNo = Integer.parseInt((String)session.getAttribute("coupleNo"));
+		String budgetPaperName = request.getParameter("budgetPaperName");
+
+		if(budget.addBudget(coupleNo, budgetPaperName)){
+			//System.out.println("등록성공");
+			response.sendRedirect("main.jsp");
+		} else {
+			System.out.println("등록실패");
+		}
+
+	}
+
 	protected void coupleSetNum(HttpServletRequest request, HttpServletResponse response) {
 		HttpSession session = request.getSession(false);
 		String coupleNo = request.getParameter("coupleNo");
 		String confirmNo = request.getParameter("confirmNo");
 		String coupleName = request.getParameter("coupleName");
-		
+
 		CoupleDTO dto = new CoupleDTO(Integer.parseInt(coupleNo), confirmNo, coupleName);
-		
+
 		if((String)session.getAttribute("coupleNo") == coupleNo) {
 			try {
 				response.sendRedirect("coupleSetResult.jsp");
@@ -270,69 +279,71 @@ public class FrontController extends HttpServlet {
 	}
 
 
-/**
- * get, post 요청을 처리하는 서비스 메서드
- * @param request 요청
- * @param response 응답
- * @throws ServletException 서블릿
- * @throws IOException 예외처리
- */
-protected void process(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
-	// 요청 파악 : 요청데이터에서 요청을 위한 key 데이터 가져오기
-	String action = request.getParameter("action");
+	/**
+	 * get, post 요청을 처리하는 서비스 메서드
+	 * @param request 요청
+	 * @param response 응답
+	 * @throws ServletException 서블릿
+	 * @throws IOException 예외처리
+	 */
+	protected void process(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// 요청 파악 : 요청데이터에서 요청을 위한 key 데이터 가져오기
+		String action = request.getParameter("action");
 
-	System.out.println("\n### action : " + action);
+		System.out.println("\n### action : " + action);
 
-	if (action != null) {
-		switch (action) {
-		case "login":
-			login(request, response);
-			break;
-		case "join":
-			join(request, response);
-			break;
-		case "logout":
-			logout(request, response);
-			break;
-		case "myInfo":
-			myInfo(request, response);
-			break;
-		case "coupleGetNum":
-			coupleGetNum(request, response);
-			break;
-		case "coupleSetNum":
-			coupleSetNum(request, response);
-			break;
-			
+		if (action != null) {
+			switch (action) {
+			case "login":
+				login(request, response);
+				break;
+			case "join":
+				join(request, response);
+				break;
+			case "logout":
+				logout(request, response);
+				break;
+			case "myInfo":
+				myInfo(request, response);
+				break;
+			case "coupleGetNum":
+				coupleGetNum(request, response);
+				break;
+			case "coupleSetNum":
+				coupleSetNum(request, response);
+				break;
+			case "budgetRegister":
+				budgetRegister(request, response);
+				break;
 
 
-		default:
-			// 지원하지 않는 요청 오류 페이지 이동
+			default:
+				// 지원하지 않는 요청 오류 페이지 이동
+			}
+		} else {
+			// 잘못된 요청방식 오류 페이지 이동
 		}
-	} else {
-		// 잘못된 요청방식 오류 페이지 이동
 	}
-}
 
-/**
- * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
- *      response)
- */ 
-protected void doGet(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
-	request.setCharacterEncoding("utf-8");
-	process(request, response);
-}
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */ 
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		process(request, response);
+	}
 
-/**
- * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
- *      response)
- */
-protected void doPost(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
-	// 요청객체에 대한 한글 인코딩 설정
-	request.setCharacterEncoding("utf-8");
-	process(request, response);
-}
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// 요청객체에 대한 한글 인코딩 설정
+		request.setCharacterEncoding("utf-8");
+		process(request, response);
+	}
 }
