@@ -1,6 +1,8 @@
 package work.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.RequestDispatcher;
@@ -12,7 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import work.util.Utility;
+import work.model.dto.Budget;
 import work.model.dto.Member;
+import work.model.service.BudgetService;
 import work.model.service.MatchingService;
 import work.model.service.MemberService;
 /*import work.util.Utility;*/
@@ -26,6 +30,7 @@ public class FrontController extends HttpServlet {
 
 	private MemberService userService = new MemberService();
 	private MatchingService matching = new MatchingService();
+	private BudgetService budgetService = new BudgetService();
 	String AllUserId = null;
 
 	/**
@@ -241,7 +246,42 @@ public class FrontController extends HttpServlet {
 			}
 		}
 	}
-
+	
+	protected void budgetIndex(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String id = "aaa";
+		String responseText = request.getParameter("responseText");
+		System.out.println("budgetIndex");
+		
+		PrintWriter out = response.getWriter();
+		response.setContentType("text/plain");
+		response.setHeader("Cache-Control", "no-cache");
+		ArrayList<Budget> budgetlist =  budgetService.selectBudget(id);
+		System.out.println(budgetlist);
+		String json="";
+		
+		if(budgetlist!=null){
+			json +="{budgets:[";
+			for(int i=0; i < budgetlist.size();i++){
+			if(i == budgetlist.size()-1) {
+				json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
+						"','length':'"+budgetlist.size()+
+						"','id':'"+budgetlist.get(i).getId()+
+						"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+						"'}";
+				} else {
+					json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
+							"','length':'"+budgetlist.size()+
+							"','id':'"+budgetlist.get(i).getId()+
+							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+							"'},";
+				}
+			}
+			json += "]}";
+		}
+		System.out.println("json :" + json);
+			out.write(json);
+		}
 
 /**
  * get, post 요청을 처리하는 서비스 메서드
@@ -274,7 +314,9 @@ protected void process(HttpServletRequest request, HttpServletResponse response)
 		case "coupleGetNum":
 			coupleGetNum(request, response);
 			break;
-
+		case "budgetIndex":
+			budgetIndex(request,response);
+			break;
 
 		default:
 			// 지원하지 않는 요청 오류 페이지 이동
@@ -290,6 +332,7 @@ protected void process(HttpServletRequest request, HttpServletResponse response)
  */ 
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
+	response.setCharacterEncoding("euc-kr");
 	process(request, response);
 }
 
