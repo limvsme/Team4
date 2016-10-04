@@ -33,7 +33,7 @@ span.noraml {
    /* 화면 초기화 함수 */
    function init() {
       document.getElementById("userId").focus();
-      document.getElementById("btnJoin").disabled = true;
+      document.getElementById("btnJoin").disabled = false;
    }
 
    /* 2 아이디 포커스 잃었을 때
@@ -251,7 +251,7 @@ span.noraml {
                   <br /></td>
             </tr>
             <tr>
-               <td colspan="3"><input type="button" value="가입" id="btnJoin"
+               <td colspan="3"><input type="submit" value="가입" id="btnJoin"
                   onclick="document.inputForm.submit()"> <input type="reset"
                   value="취소"></td>
             </tr>

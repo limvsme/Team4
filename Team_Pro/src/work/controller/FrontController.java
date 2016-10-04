@@ -195,8 +195,9 @@ public class FrontController extends HttpServlet {
 	 */
 	protected void join(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String userId = request.getParameter("userId");
-		String userPw = request.getParameter("userPw");
-		String userName = request.getParameter("userName");
+		String userPw = request.getParameter("userpw");
+		String userName = request.getParameter("name");
+		System.out.println("Parameter : userId = "+ userId + ", userPw =" + userPw + ", userName = "+ userName);
 
 		if (userId==null || userId.trim().length() == 0 ||
 				userPw.trim().length() == 0 ||
