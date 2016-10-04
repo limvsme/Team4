@@ -249,14 +249,14 @@ public class FrontController extends HttpServlet {
 	
 	protected void budgetIndex(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String id = "aaa";
+		int budgetPaperNo = Integer.parseInt(request.getParameter("budgetPaperNo"));
 		String responseText = request.getParameter("responseText");
 		System.out.println("budgetIndex");
 		
 		PrintWriter out = response.getWriter();
 		response.setContentType("text/plain");
 		response.setHeader("Cache-Control", "no-cache");
-		ArrayList<Budget> budgetlist =  budgetService.selectBudget(id);
+		ArrayList<Budget> budgetlist =  budgetService.selectBudget(budgetPaperNo);
 		System.out.println(budgetlist);
 		String json="";
 		

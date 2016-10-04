@@ -34,7 +34,7 @@ public class BudgetDao {
 	/** 회원전체조회
 	 * @return ArrayList<User> list  리스트 로 회원전체반환
 	 */
-	public ArrayList<Budget> selectBudget(String id) {
+	public ArrayList<Budget> selectBudget(int budgetPaperNo) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -45,9 +45,9 @@ public class BudgetDao {
 
 		try {
 			conn = factory.getConnection(); // 연결시켜줘 전용통로개설
-			String sql = "select * from budget_list where id = ? ";// ?에맵핑되는 전달값설정
+			String sql = "select * from budget_list where budget_paper_no = ? ";// ?에맵핑되는 전달값설정
 			pstmt = conn.prepareStatement(sql); // 통로만들어줘
-			pstmt.setString(1, id); 
+			pstmt.setInt(1, budgetPaperNo); 
 			rs = pstmt.executeQuery();
 
 			ArrayList<Budget> list = new ArrayList<Budget>();
@@ -57,7 +57,7 @@ public class BudgetDao {
 				budgetName = rs.getString("budget_name");
 				budgetAmount = rs.getInt("budget_amount");
 				
-				list.add(new Budget( id,budgetName, budgetAmount));
+				list.add(new Budget( budgetPaperNo,budgetName, budgetAmount));
 
 			}
 			return list;

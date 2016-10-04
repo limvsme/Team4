@@ -17,8 +17,8 @@ public class BudgetService {
 	private BudgetDao dao = BudgetDao.getInstance();
 	
 	
-	public ArrayList<Budget> selectBudget(String id){
-		return dao.selectBudget(id);
+	public ArrayList<Budget> selectBudget(int budgetPaperNo){
+		return dao.selectBudget(budgetPaperNo);
 		
 	}
 	
