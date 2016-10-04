@@ -16,12 +16,13 @@
 	window.onload = start;
 	function start(){
 	document.getElementById("detailTable").style.display = "none";
+	var commonIndex = 0;
 	}
-	function showDetail(){
-		
-		var table = document.getElementById("detailTable");
+	function showDetail(index){
+		commonIndex = index;
+		var table = document.getElementById("detailTable"+index);
 		if(table.style.display == "none"){
-			budgetRequest();
+			budgetRequest(index);
 			table.style.display = "block";
 			
 		} else{
@@ -35,11 +36,12 @@
 		
 
 	
-	function budgetRequest(){
+	function budgetRequest(index){
 		console.log('budgetRequest');
 		var url = "Controller";
 		var params = "";
-		params += "action=budgetIndex";
+		params += "action=budgetIndex&";
+		params += "budgetPaperNo="+index;
 		//응답데이터 타입 =json
 		params += "&responseText=json"
 		var callback = responseJson;
@@ -50,13 +52,25 @@
 	function responseJson(xhr) {
 		console.log('xhr:', xhr);
 		if (xhr.readyState == 4 && xhr.status == 200) {
-			var table = document.getElementById("detailTable");
+			var table = document.getElementById("detailTable"+commonIndex);
 			
 			var result =eval("("+xhr.responseText+")");// json형식의 문자열을 json객체로 바꿔줘
 			console.log("result:", result);
 			var length = Number(result.budgets[0].length);
 			console.log("result.length",length);
 			console.log(result.budgets[0].id);
+			
+			var html='';
+			var addHtml = '<tr><td></td><td></td><td></td><td><button onclick="showModal()" class="w3-btn w3-theme">댓글</button></td></tr>'
+			
+				if(result!=null){
+					for(var i=0; i<length; i++){
+						html += addHtml;
+						document.getElementById('tbody'+commonIndex).innerHTML = html;
+					}
+				}
+					
+					
 			
 			if(result!=null){
 				for(var i=0; i<length; i++){
@@ -202,14 +216,15 @@ html, body, h1, h2, h3, h4, h5 {
 
             <div class="w3-container w3-card-2 w3-white w3-round w3-margin">
             <br>
-               <h4 class="w3-left debitstitle" 	onclick="showDetail()">00월 00일 제목</h4>
+               <h4 class="w3-left debitstitle" 	onclick="showDetail('2')">00월 00일 제목</h4>
                <br>
                 <span class="w3-right">예산 총액 20만원</span>
                <br>
                <span class="w3-right">수락 총액 20만원</span>
                <hr class="w3-clear">
                <span class="debits">
-               <table class="w3-table-all w3-margin-bottom"  id="detailTable">
+               <table class="w3-table-all w3-margin-bottom"  id="detailTable2">
+               <thead>
                   <tr>
                      <th>분류</th>
                      <th>내용</th>
@@ -217,31 +232,20 @@ html, body, h1, h2, h3, h4, h5 {
                      <th></th>
 
                   </tr>
+                  </thead>
+                  <tbody id="tbody2">
                   <tr>
-                     <td></td>
-                     <td></td>
-                     <td></td>
-                     <td><button onclick="showModal()" class="w3-btn w3-theme">댓글</button></td>
+                  <td colspan="4">로딩중</td>
                   </tr>
-                  <tr>
-                     <td></td>
-                     <td></td>
-                     <td></td>
-                     <td><button class="w3-btn w3-theme">댓글</button></td>
-                    
-                  </tr>
-                  <tr>
-                     <td></td>
-                     <td></td>
-                     <td></td>
-                     <td><button class="w3-btn w3-theme">댓글</button></td>
-                  </tr>
+                  </tbody>
+                  <tfoot>
                   <tr>
                   <td><input class="w3-input" placeholder="신규항목 분류입력"></td>
                   <td><input class="w3-input" placeholder="신규항목 내용입력"></td>
                   <td><input class="w3-input" placeholder="신규항목 금액입력"></td>
                   <td><button class="w3-btn w3-theme">저장</button></td>
                   </tr>
+                  </tfoot>
                </table>
                </span>
             </div>

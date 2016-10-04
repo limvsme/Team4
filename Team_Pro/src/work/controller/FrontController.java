@@ -216,41 +216,33 @@ public class FrontController extends HttpServlet {
 		}
 	}
 
-	protected void coupleGetNum(HttpServletRequest request, HttpServletResponse response){
+	protected void coupleGetNum(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		HttpSession session = request.getSession(false);
 		String te = (String)session.getAttribute("coupleNo");
 		HashMap<String, Object> temp = matching.makeCoupleKey((String)session.getAttribute("userId"), Integer.parseInt(te));
 		System.out.println("coupleNo "+temp.get("coupleNo"));
 		System.out.println("confirmNo "+temp.get("confirmNo"));
 
-		if(temp != null) {
-			request.setAttribute("coupleNo", temp.get("coupleNo"));
-			session.setAttribute("coupleNo", temp.get("coupleNo").toString());
-			request.setAttribute("confirmNo", temp.get("confirmNo"));
+		request.setAttribute("coupleNo", temp.get("coupleNo"));
+		session.setAttribute("coupleNo", temp.get("coupleNo").toString());
+		request.setAttribute("confirmNo", temp.get("confirmNo"));
 
-			try {
-				request.getRequestDispatcher("coupleGetNum.jsp").forward(request, response);
-			} catch (ServletException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-			try {
-				response.sendRedirect("error.html");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try {
+			request.getRequestDispatcher("coupleGetNum.jsp").forward(request, response);
+		} catch (ServletException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			response.sendRedirect("error.html");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			response.sendRedirect("error.html");
 		}
 	}
 	
 	protected void budgetIndex(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		//int budgetPaperNo = Integer.parseInt(request.getParameter("budgetPaperNo"));
-		int budgetPaperNo = 1;
+		int budgetPaperNo = Integer.parseInt(request.getParameter("budgetPaperNo"));
 		String responseText = request.getParameter("responseText");
 		System.out.println("budgetIndex");
 		
