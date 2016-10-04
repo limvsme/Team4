@@ -13,4 +13,9 @@
     <servlet-name>FrontController</servlet-name>
     <url-pattern>/Controller</url-pattern>
   </servlet-mapping>
+  
+  <context-param>
+      <param-name>denyUserid</param-name>
+      <param-value>test,admin</param-value>
+   </context-param>
 </web-app>

@@ -6,14 +6,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import work.util.Utility;
+import work.model.dao.MemberDao;
 import work.model.dto.Budget;
 import work.model.dto.CoupleDTO;
 import work.model.dto.Member;
@@ -32,6 +33,7 @@ public class FrontController extends HttpServlet {
 	private MemberService userService = new MemberService();
 	private MatchingService matching = new MatchingService();
 	private BudgetService budget = new BudgetService();
+	private MemberDao dao = MemberDao.getInstance();
 
 	/**
 	 * 내정보조회 요청 서비스 메서드 -- 로그인 회원의 내정보 조회 -- session 설정된 로그인 회원의 아이디
@@ -40,31 +42,85 @@ public class FrontController extends HttpServlet {
 	 * @throws ServletException 서블릿
 	 * @throws IOException 예외처리
 	 */
-	protected void myInfo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// 로그인 사용자인지 검증 : 로그인 인증시에 세션객체 생성해서 userId, grade, name 설정
-		HttpSession session = request.getSession(false);
-		if (session != null && session.getAttribute("userId") != null) {
-			String userId = (String) session.getAttribute("userId");
-			Member dto = userService.getUser(userId);
-			System.out.println(dto);
-			if (dto != null) {
-				// 내정보조회 성공
-				request.setAttribute("dto", dto);
-				request.getRequestDispatcher("myinfo.jsp").forward(request, response);
+	//	protected void myInfo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	//		// 로그인 사용자인지 검증 : 로그인 인증시에 세션객체 생성해서 userId, grade, name 설정
+	//		HttpSession session = request.getSession(false);
+	//		if (session != null && session.getAttribute("userId") != null) {
+	//			String userId = (String) session.getAttribute("userId");
+	//			Member dto = userService.getUser(userId);
+	//			System.out.println(dto);
+	//			if (dto != null) {
+	//				// 내정보조회 성공
+	//				request.setAttribute("dto", dto);
+	//				request.getRequestDispatcher("myinfo.jsp").forward(request, response);
+	//
+	//			} else {
+	//				// 비정상 사용자 : 오류처리
+	//				request.setAttribute("message", "로그인 후 서비스를 사용하시기 바랍니다.");
+	//				request.getRequestDispatcher("error/loginError.jsp").forward(request, response);
+	//			}
+	//
+	//		} else {
+	//			// 비정상 사용자 : 오류처리
+	//			request.setAttribute("message", "로그인 후 서비스를 사용하시기 바랍니다.");
+	//			request.getRequestDispatcher("error/loginError.jsp").forward(request, response);
+	//		}
+	//
+	//	}
 
-			} else {
-				// 비정상 사용자 : 오류처리
-				request.setAttribute("message", "로그인 후 서비스를 사용하시기 바랍니다.");
-				request.getRequestDispatcher("error/loginError.jsp").forward(request, response);
+	public ArrayList<String> denyUseridList;
+
+	public void init() {
+		System.out.println("### context init call...");
+		ServletContext application = getServletContext();
+		String denyUserid = application.getInitParameter("denyUserid");
+
+		// test,admin
+		denyUseridList = new ArrayList<String>();
+		String[] deny = denyUserid.split(",");
+		for (String userid : deny) {
+			denyUseridList.add(userid);
+		}
+		System.out.println("## denyUSeridList: " + denyUseridList);
+	}
+
+	private void responseText(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		System.out.println("idCheck");
+		String userid = request.getParameter("userId");
+		String responseDataType = request.getParameter("responseDataType");
+		System.out.println(userid + " " + responseDataType);
+		System.out.println("userid"+userid);
+		// 응답 위한 출력 스트림 객체생성
+		PrintWriter out = response.getWriter();
+		// 응답위한 contentType(mime-type) 설정 : @see tomcat\conf\web.xml
+		response.setContentType("text/plain");
+		if (userid != null && userid.trim().length() > 0) {
+			// 4. 아이디 허용불가 : deny = denyUseridList collection 검색
+			for (String denyUserid : denyUseridList) {
+				// if(userid.equals(denyUserid)){
+				// if(userid.startsWith(denyUserid)){
+				if (userid.indexOf(denyUserid) >= 0) {
+					// 4. 아이디 허용불가
+					out.write("deny");
+					return;
+				}
 			}
 
+			boolean isUserid = dao.isUserId(userid);
+			if (isUserid) {
+				// 3 아이디 중복 : true
+				out.write("true");
+			} else {
+				// 2 아이디 사용가능 : false
+				out.write("false");
+			}
 		} else {
-			// 비정상 사용자 : 오류처리
-			request.setAttribute("message", "로그인 후 서비스를 사용하시기 바랍니다.");
-			request.getRequestDispatcher("error/loginError.jsp").forward(request, response);
+			// 1. 아이디 미입력 : required
+			out.write("required");
 		}
-
 	}
+
+
 
 	/**
 	 * 로그인 요청 서비스 메서드
@@ -175,7 +231,7 @@ public class FrontController extends HttpServlet {
 			}
 		}
 
-	}   
+	}      
 
 	/**
 	 * 로그아웃 요청 서비스 메서드
@@ -228,8 +284,8 @@ public class FrontController extends HttpServlet {
 		request.setAttribute("coupleNo", temp.get("coupleNo"));
 		session.setAttribute("coupleNo", temp.get("coupleNo").toString());
 		request.setAttribute("confirmNo", temp.get("confirmNo"));
-		
-			request.getRequestDispatcher("coupleGetNum.jsp").forward(request, response);
+
+		request.getRequestDispatcher("coupleGetNum.jsp").forward(request, response);
 
 	}
 
@@ -280,31 +336,31 @@ public class FrontController extends HttpServlet {
 			}
 		}
 	}
-	
+
 	protected void budgetIndex(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int budgetPaperNo = Integer.parseInt(request.getParameter("budgetPaperNo"));
 		String responseText = request.getParameter("responseText");
 		System.out.println("budgetIndex");
-		
+
 		PrintWriter out = response.getWriter();
 		response.setContentType("text/plain");
 		response.setHeader("Cache-Control", "no-cache");
 		ArrayList<Budget> budgetlist =  budget.selectBudget(budgetPaperNo);
 		System.out.println(budgetlist);
 		String json="";
-		
+
 		if(budgetlist!=null){
 			json +="{budgets:[";
 			for(int i=0; i < budgetlist.size();i++){
-			if(i == budgetlist.size()-1) {
-				json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
-						"','length':'"+budgetlist.size()+
-						"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
-						"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
-						"','id':'"+budgetlist.get(i).getId()+
-						"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
-						"'}";
+				if(i == budgetlist.size()-1) {
+					json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
+							"','length':'"+budgetlist.size()+
+							"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
+							"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
+							"','id':'"+budgetlist.get(i).getId()+
+							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+							"'}";
 				} else {
 					json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
 							"','length':'"+budgetlist.size()+
@@ -318,8 +374,26 @@ public class FrontController extends HttpServlet {
 			json += "]}";
 		}
 		System.out.println("json :" + json);
-			out.write(json);
+		out.write(json);
+	}
+
+	private void idCheck(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		System.out.println("idCheck");
+		String userid = request.getParameter("userid");
+		String responseDataType = request.getParameter("responseDataType");
+
+		switch(responseDataType) {
+		case "text" :
+		case "json" :
+			responseText(request,response);
+			break;
+		default : 
+			request.setAttribute("message", "지원하지 않는 응답데이터 형식입니다.");
+			request.getRequestDispatcher("error.jsp").forward(request, response);
 		}
+	}
+
+
 
 
 	/**
@@ -347,9 +421,6 @@ public class FrontController extends HttpServlet {
 			case "logout":
 				logout(request, response);
 				break;
-			case "myInfo":
-				myInfo(request, response);
-				break;
 			case "coupleGetNum":
 				coupleGetNum(request, response);
 				break;
@@ -361,6 +432,9 @@ public class FrontController extends HttpServlet {
 				break;
 			case "budgetIndex":
 				budgetIndex(request,response);
+				break;
+			case "idCheck":
+				idCheck(request,response);
 				break;
 
 			default:
