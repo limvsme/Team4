@@ -1,6 +1,8 @@
 package work.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.RequestDispatcher;
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import work.util.Utility;
+import work.model.dto.Budget;
 import work.model.dto.CoupleDTO;
 import work.model.dto.Member;
 import work.model.service.BudgetService;
@@ -277,6 +280,46 @@ public class FrontController extends HttpServlet {
 			}
 		}
 	}
+	
+	protected void budgetIndex(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		int budgetPaperNo = Integer.parseInt(request.getParameter("budgetPaperNo"));
+		String responseText = request.getParameter("responseText");
+		System.out.println("budgetIndex");
+		
+		PrintWriter out = response.getWriter();
+		response.setContentType("text/plain");
+		response.setHeader("Cache-Control", "no-cache");
+		ArrayList<Budget> budgetlist =  budget.selectBudget(budgetPaperNo);
+		System.out.println(budgetlist);
+		String json="";
+		
+		if(budgetlist!=null){
+			json +="{budgets:[";
+			for(int i=0; i < budgetlist.size();i++){
+			if(i == budgetlist.size()-1) {
+				json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
+						"','length':'"+budgetlist.size()+
+						"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
+						"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
+						"','id':'"+budgetlist.get(i).getId()+
+						"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+						"'}";
+				} else {
+					json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
+							"','length':'"+budgetlist.size()+
+							"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
+							"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
+							"','id':'"+budgetlist.get(i).getId()+
+							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+							"'},";
+				}
+			}
+			json += "]}";
+		}
+		System.out.println("json :" + json);
+			out.write(json);
+		}
 
 
 	/**
@@ -316,7 +359,9 @@ public class FrontController extends HttpServlet {
 			case "budgetRegister":
 				budgetRegister(request, response);
 				break;
-
+			case "budgetIndex":
+				budgetIndex(request,response);
+				break;
 
 			default:
 				// 지원하지 않는 요청 오류 페이지 이동
@@ -332,6 +377,7 @@ public class FrontController extends HttpServlet {
 	 */ 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		response.setCharacterEncoding("utf-8");
 		request.setCharacterEncoding("utf-8");
 		process(request, response);
 	}
@@ -344,6 +390,7 @@ public class FrontController extends HttpServlet {
 			throws ServletException, IOException {
 		// 요청객체에 대한 한글 인코딩 설정
 		request.setCharacterEncoding("utf-8");
+		response.setCharacterEncoding("utf-8");
 		process(request, response);
 	}
 }

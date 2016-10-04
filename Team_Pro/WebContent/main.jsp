@@ -13,6 +13,7 @@
 <meta charset="UTF-8">
 <script type="text/javascript" src="http://code.jquery.com/jquery-3.1.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="text/javascript" src="js/ajax.js"></script>
 <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
 <link rel="stylesheet" href="http://www.w3schools.com/lib/w3-theme-green.css">
 <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
@@ -23,6 +24,84 @@ html, body, h1, h2, h3, h4, h5 {
 }
 </style>
 <body class="w3-theme-l5">
+	<script type="text/javascript">
+		window.onload = start;
+		function start() {
+			var allTable = document.getElementsByTagName('table');
+			for (i = 0; i < allTable.length; i++) {
+				allTable[i].style.display = "none";
+			}
+			var commonIndex = 0;
+		}
+		function showDetail(index) {
+			commonIndex = index;
+			var table = document.getElementById("detailTable" + index);
+			if (table.style.display == "none") {
+				budgetRequest(index);
+				table.style.display = "block";
+
+			} else {
+				table.style.display = "none";
+
+			}
+		}
+		function showModal() {
+			document.getElementById('id01').style.display = 'block';
+		}
+
+		function budgetRequest(index) {
+			console.log('budgetRequest');
+			var url = "Controller";
+			var params = "";
+			params += "action=budgetIndex&";
+			params += "budgetPaperNo=" + index;
+			//응답데이터 타입 =json
+			params += "&responseText=json"
+			var callback = responseJson;
+			method = "GET";
+			//js/ajax.js 스크립트이용해서 ajax 서버요청
+			new ajax.xhr.Request(url, params, callback, method)
+		}
+		function responseJson(xhr) {
+			console.log('xhr:', xhr);
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				var table = document
+						.getElementById("detailTable" + commonIndex);
+
+				var result = eval("(" + xhr.responseText + ")");// json형식의 문자열을 json객체로 바꿔줘
+				console.log("result:", result);
+				if(typeof result.budgets[0] != "undefined"){
+				var length = Number(result.budgets[0].length);
+				console.log(result.budgets[0].id);
+				} else {var length = 0;}
+				console.log("result.length", length);
+				
+				if (length != 0) {
+					var html = '';
+					var addHtml = '<tr><td></td><td></td><td></td><td><button onclick="showModal()" class="w3-btn w3-theme">댓글</button></td></tr>'
+
+					if (result != null) {
+						for (var i = 0; i < length; i++) {
+							html += addHtml;
+							document.getElementById('tbody' + commonIndex).innerHTML = html;
+						}
+					}
+
+					if (result != null) {
+						for (var i = 0; i < length; i++) {
+							table.rows[i + 1].cells[0].innerHTML = result.budgets[i].categoryNo;
+							table.rows[i + 1].cells[1].innerHTML = result.budgets[i].budgetName;
+							table.rows[i + 1].cells[2].innerHTML = result.budgets[i].budgetAmount;
+						}
+					} else {
+						alert('오류');
+					}
+				} else {
+					document.getElementById('tbody'+commonIndex).innerHTML = '<tr><td colspan="4">검색된 내용 없음.</td></tr>'
+				}
+			}
+		}
+	</script>
 
 	<!-- Navbar -->
 	<div class="w3-top">
@@ -135,47 +214,44 @@ html, body, h1, h2, h3, h4, h5 {
 					</div>
 				</div>
 				<%
+					int tempNo;
 					for (int i = 0; i < list.size(); i++) {
+						tempNo = list.get(i).getBudgetPaperNo();
 				%>
 				<div class="w3-container w3-card-2 w3-white w3-round w3-margin">
 					<br>
-					<h4 class="w3-left debitstitle"><%=list.get(i).getBudgetPaperName()%></h4>
+					<h4 class="w3-left debitstitle" onclick="showDetail('<%=tempNo%>')"><%=list.get(i).getBudgetPaperName()%></h4>
 					<br>
-					<span class="w3-right">예산 총액 <%= list.get(i).getAmountSum() %>원</span>
+					<span class="w3-right">예산 총액 <%=list.get(i).getAmountSum()%>원
+					</span>
 					<br>
-					<span class="w3-right">수락 총액 <%= list.get(i).getAmountYSum() %>원</span>
+					<span class="w3-right">수락 총액 <%=list.get(i).getAmountYSum()%>원
+					</span>
 					<hr class="w3-clear">
 					<span class="debits">
-						<table class="w3-table-all w3-margin-bottom">
-							<tr>
-								<th>분류</th>
-								<th>내용</th>
-								<th>금액</th>
-								<th></th>
+						<table class="w3-table-all w3-margin-bottom" id="detailTable<%=tempNo%>">
+							<thead>
+								<tr>
+									<th>분류</th>
+									<th>내용</th>
+									<th>금액</th>
+									<th></th>
 
-							</tr>
-							<tr>
-								<td>쇼핑</td>
-								<td>코스트코 가기
-									<button class="w3-btn">댓글</button>
-								</td>
-								<td>50000</td>
-								<td><button class="w3-btn">삭제</button>
-							</tr>
-							<tr>
-								<td>식사</td>
-								<td>식당 가기
-									<button class="w3-btn">댓글</button>
-								</td>
-								<td>10000</td>
-								<td><button class="w3-btn">수락</button></td>
-							</tr>
-							<tr>
-								<td><input class="w3-input" placeholder="신규항목 분류입력"></td>
-								<td><input class="w3-input" placeholder="신규항목 내용입력"></td>
-								<td><input class="w3-input" placeholder="신규항목 금액입력"></td>
-								<td><button class="w3-btn">저장</button></td>
-							</tr>
+								</tr>
+							</thead>
+							<tbody id="tbody<%=tempNo%>">
+								<tr>
+									<td colspan="4">로딩중입니다. </td>
+								</tr>
+							</tbody>
+							<tfoot>
+								<tr>
+									<td><input class="w3-input" placeholder="신규항목 분류입력"></td>
+									<td><input class="w3-input" placeholder="신규항목 내용입력"></td>
+									<td><input class="w3-input" placeholder="신규항목 금액입력"></td>
+									<td><button class="w3-btn w3-theme">저장</button></td>
+								</tr>
+							</tfoot>
 						</table>
 					</span>
 				</div>
@@ -233,10 +309,10 @@ html, body, h1, h2, h3, h4, h5 {
 
 
 	<script type="text/javascript">
-		$(".debits").hide();
-		$(".debitstitle").click(function() {
-			$(this).next().next().next().next().next().next().toggle();
-		});
+		//		$(".debits").hide();
+		//		$(".debitstitle").click(function() {
+		//			$(this).next().next().next().next().next().next().toggle();
+		//		});
 	</script>
 </body>
 </html>
