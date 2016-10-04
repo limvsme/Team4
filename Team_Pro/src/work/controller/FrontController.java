@@ -249,7 +249,8 @@ public class FrontController extends HttpServlet {
 	
 	protected void budgetIndex(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		int budgetPaperNo = Integer.parseInt(request.getParameter("budgetPaperNo"));
+		//int budgetPaperNo = Integer.parseInt(request.getParameter("budgetPaperNo"));
+		int budgetPaperNo = 1;
 		String responseText = request.getParameter("responseText");
 		System.out.println("budgetIndex");
 		
@@ -266,12 +267,16 @@ public class FrontController extends HttpServlet {
 			if(i == budgetlist.size()-1) {
 				json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
 						"','length':'"+budgetlist.size()+
+						"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
+						"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
 						"','id':'"+budgetlist.get(i).getId()+
 						"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
 						"'}";
 				} else {
 					json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
 							"','length':'"+budgetlist.size()+
+							"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
+							"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
 							"','id':'"+budgetlist.get(i).getId()+
 							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
 							"'},";

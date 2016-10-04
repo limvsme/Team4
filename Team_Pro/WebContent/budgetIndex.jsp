@@ -60,7 +60,7 @@
 			
 			if(result!=null){
 				for(var i=0; i<length; i++){
-				table.rows[i+1].cells[0].innerHTML = result.budgets[i].id;
+				table.rows[i+1].cells[0].innerHTML = result.budgets[i].categoryNo;
 				table.rows[i+1].cells[1].innerHTML = result.budgets[i].budgetName;
 				table.rows[i+1].cells[2].innerHTML = result.budgets[i].budgetAmount;
 				}

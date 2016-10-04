@@ -38,11 +38,13 @@ public class Budget implements Serializable{
 		this.cdate =cdate;
 		this.id=id;
 	}
-	public Budget(int budgetPaperNo,String budgetName,int budgetAmount){
+	public Budget( String id, int budgetPaperNo,String budgetName, int budgetAmount,int categoryNo ,int budgetNo){
 		this.budgetPaperNo = budgetPaperNo;
 		this.budgetName =budgetName;
 		this.budgetAmount =budgetAmount;
-		
+		this.budgetNo = budgetNo;
+		this.categoryNo= categoryNo;
+		this.id=id;
 	}
 	
 	public int getBudgetPaperNo() {

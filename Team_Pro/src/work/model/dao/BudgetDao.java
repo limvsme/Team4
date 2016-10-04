@@ -38,10 +38,13 @@ public class BudgetDao {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-
+		
+		String id = null;
+		
 		String budgetName = null;
 		int budgetAmount = 0;
-		
+		int categoryNo=0;
+		int budgetNo=0;
 
 		try {
 			conn = factory.getConnection(); // 연결시켜줘 전용통로개설
@@ -53,11 +56,12 @@ public class BudgetDao {
 			ArrayList<Budget> list = new ArrayList<Budget>();
 
 			while (rs.next()) {
-
+				id = rs.getString("id");
 				budgetName = rs.getString("budget_name");
 				budgetAmount = rs.getInt("budget_amount");
-				
-				list.add(new Budget( budgetPaperNo,budgetName, budgetAmount));
+				categoryNo =rs.getInt("category_no");
+				budgetNo = rs.getInt("budget_no");
+				list.add(new Budget( id,budgetPaperNo,budgetName, budgetAmount,categoryNo ,budgetNo));
 
 			}
 			return list;
