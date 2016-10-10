@@ -49,6 +49,60 @@ public class BudgetDAO {
 		return 0;
 	}
 	
+	public int updateListY(int budgetNo) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+
+		try {
+			conn = factory.getConnection();
+			StringBuilder temp = new StringBuilder();
+			temp.append("update budget_list");
+			temp.append(" set ");
+			temp.append("budget_yn='Y'");
+			temp.append(" where ");
+			temp.append("budget_no=?");
+			  
+			String sql = temp.toString();
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, budgetNo);
+			return pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("예산서 항목 수락 updateListY > SQLException");
+			e.printStackTrace();
+		} finally {
+			//자원해제
+			factory.close(conn, pstmt);
+		}
+		return 0;
+	}
+	
+	public int deleteList(int budgetNo) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+
+		try {
+			conn = factory.getConnection();
+			StringBuilder temp = new StringBuilder();
+			temp.append("delete from budget_list");
+			temp.append(" where ");
+			temp.append("budget_no=?");
+			  
+			String sql = temp.toString();
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, budgetNo);
+			return pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("예산서 항목 삭제 deleteList > SQLException");
+			e.printStackTrace();
+		} finally {
+			//자원해제
+			factory.close(conn, pstmt);
+		}
+		return 0;
+	}
+	
 
 	
 

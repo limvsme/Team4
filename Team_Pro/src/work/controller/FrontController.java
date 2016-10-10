@@ -337,6 +337,33 @@ public class FrontController extends HttpServlet {
 			}
 		}
 	}
+	/* 컨트롤러 추가할 부분 : 항목 수락 or 삭제. 합칠 때 주의 */
+	private void listY(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		int budgetNo = Integer.parseInt(request.getParameter("budgetNo"));
+		PrintWriter out = response.getWriter();
+		response.setContentType("text/plain");
+		response.setHeader("Cache-Control", "no-cache");
+		if(budget.listY(budgetNo)){
+			out.write("true");
+		} else {
+			out.write("false");
+		}
+		
+	}
+	
+	private void deleteList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		int budgetNo = Integer.parseInt(request.getParameter("budgetNo"));
+		PrintWriter out = response.getWriter();
+		response.setContentType("text/plain");
+		response.setHeader("Cache-Control", "no-cache");
+		if(budget.deleteList(budgetNo)){
+			out.write("true");
+		} else {
+			out.write("false");
+		}
+		
+	}
+	/* 합칠 부분 끝 */
 
 	protected void budgetIndex(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -437,6 +464,12 @@ public class FrontController extends HttpServlet {
 			case "idCheck":
 				idCheck(request,response);
 				break;
+			case "listY":
+				listY(request,response);
+				break;
+			case "deleteList":
+				deleteList(request,response);
+				break;
 
 			default:
 				// 지원하지 않는 요청 오류 페이지 이동
@@ -445,6 +478,10 @@ public class FrontController extends HttpServlet {
 			// 잘못된 요청방식 오류 페이지 이동
 		}
 	}
+
+
+
+
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse

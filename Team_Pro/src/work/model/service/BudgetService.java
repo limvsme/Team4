@@ -23,5 +23,21 @@ public class BudgetService {
 		return dao.selectBudget(budgetPaperNo);
 		
 	}
+	
+	public boolean listY(int budgetNo){
+		if(budget.updateListY(budgetNo) == 1){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean deleteList(int budgetNo) {
+		if(budget.deleteList(budgetNo) == 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 }
