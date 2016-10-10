@@ -89,7 +89,7 @@ html, body, h1, h2, h3, h4, h5 {
 
 					if (result != null) {
 						for (var i = 0; i < length; i++) {
-							table.rows[i + 1].cells[0].innerHTML = result.budgets[i].categoryNo;
+							table.rows[i + 1].cells[0].innerHTML = result.budgets[i].categoryName;
 							table.rows[i + 1].cells[1].innerHTML = result.budgets[i].budgetName;
 							table.rows[i + 1].cells[2].innerHTML = result.budgets[i].budgetAmount;
 						}
@@ -101,26 +101,29 @@ html, body, h1, h2, h3, h4, h5 {
 				}
 			}
 		}
-		function insertBudget() {
+		function insertBudget(index) {
 			console.log('insertBudget');
 			var url = "Controller";
-			var categoryName = document.getElementById("categoryName").value;
-			var budgetName = document.getElementById("budgetName").value;
-			var budgetAmount = document.getElementById("budgetAmount").value;
+			var budgetPaperNo = index;
+			var categoryNo = document.getElementById("categoryNo"+index).value;
+			var budgetName = document.getElementById("budgetName"+index).value;
+			var budgetAmount = document.getElementById("budgetAmount"+index).value;
 			
 			var params = "";
 			params += "action=insertBudget";
-			params += "&categoryName=" + categoryName;
+			params += "&budgetPaperNo=" + budgetPaperNo;
+			params += "&categoryNo=" + categoryNo;
 			params += "&budgetName=" + budgetName;
 			params += "&budgetAmount="+budgetAmount
 			//응답데이터 타입 =json
 			params += "&responseText=json"
-			var callback = responseJson;
+			var callback = responseJson2;
 			method = "GET";
 			//js/ajax.js 스크립트이용해서 ajax 서버요청
 			new ajax.xhr.Request(url, params, callback, method)
 		}
-		function responseJson(xhr) {
+		function responseJson2(xhr) {
+			console.log('responseJson2');
 			console.log('xhr:', xhr);
 			if (xhr.readyState == 4 && xhr.status == 200) {
 				var table = document
@@ -147,7 +150,7 @@ html, body, h1, h2, h3, h4, h5 {
 
 					if (result != null) {
 						for (var i = 0; i < length; i++) {
-							table.rows[i + 1].cells[0].innerHTML = result.budgets[i].categoryNo;
+							table.rows[i + 1].cells[0].innerHTML = result.budgets[i].categoryName;
 							table.rows[i + 1].cells[1].innerHTML = result.budgets[i].budgetName;
 							table.rows[i + 1].cells[2].innerHTML = result.budgets[i].budgetAmount;
 						}
@@ -159,6 +162,7 @@ html, body, h1, h2, h3, h4, h5 {
 				}
 			}
 		}
+		
 	</script>
 
 	<!-- Navbar -->
@@ -305,10 +309,17 @@ html, body, h1, h2, h3, h4, h5 {
 							</tbody>
 							<tfoot>
 								<tr>
-									<td><input class="w3-input" id="categoryName" placeholder="신규항목 분류입력"></td>
-									<td><input class="w3-input" id="budgetName" placeholder="신규항목 내용입력"></td>
-									<td><input class="w3-input" id="budgetAmount" placeholder="신규항목 금액입력"></td>
-									<td><button type="button" onclick="insertBudget()"class="w3-btn w3-theme">저장</button></td>
+								<td><select class="w3-select" id="categoryNo<%=tempNo %>">
+  									<option value="1">쇼핑</option>
+  									<option value="2">음식</option>
+  									<option value="3">이동</option>
+  									<option value="4">기타</option>
+									</select>
+									</td>
+									
+									<td><input class="w3-input" id="budgetName<%=tempNo %>" placeholder="신규항목 내용입력"></td>
+									<td><input class="w3-input" id="budgetAmount<%=tempNo %>" placeholder="신규항목 금액입력"></td>
+									<td><button type="button" onclick="insertBudget('<%=tempNo %>')"class="w3-btn w3-theme">저장</button></td>
 								</tr>
 							</tfoot>
 						</table>

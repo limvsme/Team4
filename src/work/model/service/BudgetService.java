@@ -23,9 +23,9 @@ public class BudgetService {
 		return dao.selectBudget(budgetPaperNo);
 		
 	}
-	public int insertBudget(String id,String categoryName,String budgetName,int budgetAmount){
+	public int insertBudget(String id,int categoryNo,String budgetName,int budgetAmount,int budgetPaperNo){
 		
-		return dao.insertBudget(id,categoryName,budgetName,budgetAmount);
+		return dao.insertBudget(id,categoryNo,budgetName,budgetAmount,budgetPaperNo);
 		
 	}
 

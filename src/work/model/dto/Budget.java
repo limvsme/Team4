@@ -23,7 +23,20 @@ public class Budget implements Serializable{
 	private int categoryNo;
 	private String cdate;
 	private String id;
+	private String categoryName;
 	
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+
+
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+
+
+
 	public Budget(){}
 	
 
@@ -38,14 +51,15 @@ public class Budget implements Serializable{
 		this.cdate =cdate;
 		this.id=id;
 	}
-	public Budget( String id, int budgetPaperNo,String budgetName, int budgetAmount,int categoryNo ,int budgetNo,String budgetYn){
+	public Budget( String id, int budgetPaperNo,String budgetName, int budgetAmount,String categoryName ,int budgetNo,String budgetYn){
+		this.id=id;
 		this.budgetPaperNo = budgetPaperNo;
 		this.budgetName =budgetName;
 		this.budgetAmount =budgetAmount;
 		this.budgetNo = budgetNo;
-		this.categoryNo= categoryNo;
+		this.categoryName= categoryName;
 		this.budgetYn =budgetYn;
-		this.id=id;
+		
 	}
 	
 	public int getBudgetPaperNo() {

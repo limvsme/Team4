@@ -35,6 +35,8 @@ public class BudgetDao2 {
 	 * @return ArrayList<User> list  리스트 로 회원전체반환
 	 */
 	public ArrayList<Budget> selectBudget(int budgetPaperNo) {
+		System.out.println("dao budgetPaperNo"+budgetPaperNo);
+		
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -43,27 +45,35 @@ public class BudgetDao2 {
 		
 		String budgetName = null;
 		int budgetAmount = 0;
-		int categoryNo=0;
+	
 		int budgetNo=0;
 		String categoryName = null;
 		String budgetYN= null;
 		try {
 			conn = factory.getConnection(); // 연결시켜줘 전용통로개설
-			String sql = "select * from budget_list where budget_paper_no = ? ";// ?에맵핑되는 전달값설정
+			StringBuilder stringbd = new StringBuilder();
+			stringbd.append("select b.id, b.budget_name, b.budget_amount, c.category_name , b.budget_yn, b.budget_no ");
+			stringbd.append("from budget_list b,category c ");
+			stringbd.append("where b.category_no=c.category_no and b.budget_paper_no = ? ");
+		
+			String sql = stringbd.toString();// ?에맵핑되는 전달값설정
 			pstmt = conn.prepareStatement(sql); // 통로만들어줘
 			pstmt.setInt(1, budgetPaperNo); 
 			rs = pstmt.executeQuery();
 
 			ArrayList<Budget> list = new ArrayList<Budget>();
-
+			System.out.println("dao sql"+sql);
 			while (rs.next()) {
-				id = rs.getString("id");
-				budgetName = rs.getString("budget_name");
-				budgetAmount = rs.getInt("budget_amount");
-				categoryNo =rs.getInt("category_no");
-				budgetYN = rs.getString("budget_yn");
-				budgetNo = rs.getInt("budget_no");
-				list.add(new Budget( id,budgetPaperNo,budgetName, budgetAmount,categoryNo ,budgetNo,budgetYN));
+				id = rs.getString(1);
+				budgetName = rs.getString(2);
+				budgetAmount = rs.getInt(3);
+				categoryName =rs.getString(4);
+				budgetYN = rs.getString(5);
+				budgetNo = rs.getInt(6);
+				System.out.println("dao rs.next"+categoryName);
+				Budget dto=new Budget( id,budgetPaperNo,budgetName, budgetAmount,categoryName ,budgetNo,budgetYN);
+				System.out.println(dto.toString());
+				list.add(dto);
 
 			}
 			return list;
@@ -76,48 +86,27 @@ public class BudgetDao2 {
 		return null;
 	}
 	
-	public int insertBudget(String id,String categoryName,String budgetName,int budgetAmount) {
+	public int insertBudget(String id,int categoryNo,String budgetName,int budgetAmount,int budgetPaperNo) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
-		int categoryNo=0;
-		int budgetPaperNo =0;
+		
+		
 		try {
 			conn = factory.getConnection(); // 연결시켜줘 전용통로개설
-			String sql1="select * from category where category_name=?";
-			pstmt = conn.prepareStatement(sql1);
-			pstmt.setString(1, categoryName);
-			rs=pstmt.executeQuery();
-			if(rs.next()){
-				categoryNo =rs.getInt("category_no");
-			}
-			
-			rs.close();
-			pstmt.close();
-			
-			String sql2 = "insert into budget_list values(SEQ_LIST_NO.nextval,SEQ_BUDGET_NO.nextval, ? , ? ,'N', ? , sysdate , ? ) ";// ?에맵핑되는 전달값설정
-			
-			pstmt = conn.prepareStatement(sql2); // 통로만들어줘
-			pstmt.setString(1, budgetName); 
-			pstmt.setInt(2, budgetAmount); 
-			pstmt.setInt(3, categoryNo);
-			pstmt.setString(4, id); 
-			pstmt.executeUpdate();
-			pstmt.close();
-			
-			String sql3 = "select SEQ_LIST_NO.currval from dual";
-			pstmt = conn.prepareStatement(sql3); 
-			rs= pstmt.executeQuery();
-		
-			if(rs.next()){
-				budgetPaperNo =rs.getInt("currval");
-			}
-			pstmt.executeQuery();
 			
 			
+			String sql1 = "insert into budget_list values(? ,SEQ_BUDGET_NO.nextval, ? , ? ,'N', ? , sysdate , ? ) ";// ?에맵핑되는 전달값설정
 			
-			return budgetPaperNo;
+			pstmt = conn.prepareStatement(sql1); // 통로만들어줘
+			pstmt.setInt(1, budgetPaperNo);
+			pstmt.setString(2, budgetName); 
+			pstmt.setInt(3, budgetAmount); 
+			pstmt.setInt(4, categoryNo);
+			pstmt.setString(5, id); 
+			
+			return pstmt.executeUpdate();
 
 			
 		} catch (SQLException e) {

@@ -358,7 +358,7 @@ public class FrontController extends HttpServlet {
 					json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
 							"','length':'"+budgetlist.size()+
 							"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
-							"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
+							"','categoryName':'"+budgetlist.get(i).getCategoryName()+
 							"','id':'"+budgetlist.get(i).getId()+
 							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
 							"'}";
@@ -366,7 +366,7 @@ public class FrontController extends HttpServlet {
 					json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
 							"','length':'"+budgetlist.size()+
 							"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
-							"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
+							"','categoryName':'"+budgetlist.get(i).getCategoryName()+
 							"','id':'"+budgetlist.get(i).getId()+
 							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
 							"'},";
@@ -398,14 +398,16 @@ public class FrontController extends HttpServlet {
 			throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
 		System.out.println("insertBudget");
+		int budgetPaperNo = Integer.parseInt(request.getParameter("budgetPaperNo"));
 		String responseText = request.getParameter("responseText");
-		String categoryName = request.getParameter("categoryName");
+		int categoryNo = Integer.parseInt(request.getParameter("categoryNo"));
 		String budgetName = request.getParameter("budgetName");
 		int budgetAmount =Integer.parseInt(request.getParameter("budgetAmount"));
-		String id = (String)session.getAttribute("id");
-		System.out.println(id+categoryName+budgetName+budgetAmount);
-		int budgetPaperNo = budget.insertBudget(id,categoryName,budgetName,budgetAmount);
-		if (budgetPaperNo != 0) {
+		String id = (String)session.getAttribute("userId");
+		System.out.println(id+categoryNo+budgetName+budgetAmount);
+		int checknum = budget.insertBudget(id,categoryNo,budgetName,budgetAmount,budgetPaperNo);
+		System.out.println(checknum);
+		if (checknum != 0) {
 
 			PrintWriter out = response.getWriter();
 			response.setContentType("text/plain");
@@ -421,7 +423,7 @@ public class FrontController extends HttpServlet {
 						json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
 								"','length':'"+budgetlist.size()+
 								"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
-								"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
+								"','categoryName':'"+budgetlist.get(i).getCategoryName()+
 								"','id':'"+budgetlist.get(i).getId()+
 								"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
 								"'}";
@@ -429,7 +431,7 @@ public class FrontController extends HttpServlet {
 						json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
 								"','length':'"+budgetlist.size()+
 								"','budgetNo':'"+budgetlist.get(i).getBudgetNo()+
-								"','categoryNo':'"+budgetlist.get(i).getCategoryNo()+
+								"','categoryName':'"+budgetlist.get(i).getCategoryName()+
 								"','id':'"+budgetlist.get(i).getId()+
 								"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
 								"'},";
