@@ -92,6 +92,13 @@ html, body, h1, h2, h3, h4, h5 {
 							table.rows[i + 1].cells[0].innerHTML = result.budgets[i].categoryName;
 							table.rows[i + 1].cells[1].innerHTML = result.budgets[i].budgetName;
 							table.rows[i + 1].cells[2].innerHTML = result.budgets[i].budgetAmount;
+							if(result.budgets[i].budgetYn == 'Y'){
+								table.rows[i + 1].cells[3].innerHTML = '<button onclick="showModal()" class="w3-btn w3-theme" disabled>채택</button>';
+							} else if (result.budgets[i].id == '<%=session.getAttribute("userId")%>') {
+								table.rows[i + 1].cells[3].innerHTML = '<button onclick="showModal()" class="w3-btn w3-theme">삭제</button>';
+							} else {
+								table.rows[i + 1].cells[3].innerHTML = '<button onclick="showModal()" class="w3-btn w3-theme">수락</button>';
+							}
 						}
 					} else {
 						alert('오류');
@@ -117,51 +124,25 @@ html, body, h1, h2, h3, h4, h5 {
 			params += "&budgetAmount="+budgetAmount
 			//응답데이터 타입 =json
 			params += "&responseText=json"
-			var callback = responseJson2;
+			var callback = responseJson;
 			method = "GET";
 			//js/ajax.js 스크립트이용해서 ajax 서버요청
 			new ajax.xhr.Request(url, params, callback, method)
 		}
-		function responseJson2(xhr) {
-			console.log('responseJson2');
-			console.log('xhr:', xhr);
-			if (xhr.readyState == 4 && xhr.status == 200) {
-				var table = document
-						.getElementById("detailTable" + commonIndex);
-
-				var result = eval("(" + xhr.responseText + ")");// json형식의 문자열을 json객체로 바꿔줘
-				console.log("result:", result);
-				if(typeof result.budgets[0] != "undefined"){
-				var length = Number(result.budgets[0].length);
-				console.log(result.budgets[0].id);
-				} else {var length = 0;}
-				console.log("result.length", length);
-				
-				if (length != 0) {
-					var html = '';
-					var addHtml = '<tr><td></td><td></td><td></td><td><button onclick="showModal()" class="w3-btn w3-theme">댓글</button></td></tr>'
-
-					if (result != null) {
-						for (var i = 0; i < length; i++) {
-							html += addHtml;
-							document.getElementById('tbody' + commonIndex).innerHTML = html;
-						}
-					}
-
-					if (result != null) {
-						for (var i = 0; i < length; i++) {
-							table.rows[i + 1].cells[0].innerHTML = result.budgets[i].categoryName;
-							table.rows[i + 1].cells[1].innerHTML = result.budgets[i].budgetName;
-							table.rows[i + 1].cells[2].innerHTML = result.budgets[i].budgetAmount;
-						}
-					} else {
-						alert('오류');
-					}
-				} else {
-					document.getElementById('tbody'+commonIndex).innerHTML = '<tr><td colspan="4">검색된 내용 없음.</td></tr>'
-				}
-			}
+		
+		function deleteList(index) {
+			var url = "Controller";
+			var params = "";
+			params += "action=budgetIndex&";
+			params += "budgetPaperNo=" + index;
+			//응답데이터 타입 =json
+			params += "&responseText=json"
+			var callback = responseJson;
+			method = "GET";
+			//js/ajax.js 스크립트이용해서 ajax 서버요청
+			new ajax.xhr.Request(url, params, callback, method)
 		}
+		
 		
 	</script>
 

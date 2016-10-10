@@ -361,6 +361,7 @@ public class FrontController extends HttpServlet {
 							"','categoryName':'"+budgetlist.get(i).getCategoryName()+
 							"','id':'"+budgetlist.get(i).getId()+
 							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+							"','budgetYn':'"+budgetlist.get(i).getBudgetYn()+
 							"'}";
 				} else {
 					json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
@@ -369,6 +370,7 @@ public class FrontController extends HttpServlet {
 							"','categoryName':'"+budgetlist.get(i).getCategoryName()+
 							"','id':'"+budgetlist.get(i).getId()+
 							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+							"','budgetYn':'"+budgetlist.get(i).getBudgetYn()+
 							"'},";
 				}
 			}

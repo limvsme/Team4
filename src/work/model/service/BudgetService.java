@@ -28,5 +28,21 @@ public class BudgetService {
 		return dao.insertBudget(id,categoryNo,budgetName,budgetAmount,budgetPaperNo);
 		
 	}
+	
+	public boolean listY(int budgetNo){
+		if(budget.updateListY(budgetNo) == 1){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean deleteList(int budgetNo) {
+		if(budget.deleteList(budgetNo) == 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 }
