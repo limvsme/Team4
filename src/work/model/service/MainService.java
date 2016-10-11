@@ -1,6 +1,7 @@
 package work.model.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import work.model.dao.MainDAO;
 import work.model.dto.BudgetPaperDTO;
@@ -19,5 +20,16 @@ public class MainService {
 			after.add(temp);
 		}
 		return after;
+	}
+	
+	public HashMap<String,String> getProfile(int coupleNo){
+		HashMap<String,String> result = new HashMap<String,String>();
+		ArrayList<String> temp = budget.selectNameNname(coupleNo);
+		String twoName = temp.get(0) +" ¢¾ "+temp.get(1);
+		result.put("coupleName", budget.selectCoupleName(coupleNo));
+		result.put("twoName", twoName);
+		
+		return result;
+		
 	}
 }

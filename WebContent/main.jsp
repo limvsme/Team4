@@ -1,11 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="work.model.service.MainService"%>
 <%@ page import="java.util.ArrayList"%>
+<%@ page import="java.util.HashMap"%>
 <%@ page import="work.model.dto.BudgetPaperDTO"%>
 <%
 	MainService service = new MainService();
-	ArrayList<BudgetPaperDTO> list = service
-			.getBudget(Integer.parseInt((String) session.getAttribute("coupleNo")));
+	int coupleNos = Integer.parseInt((String) session.getAttribute("coupleNo"));
+	ArrayList<BudgetPaperDTO> list = service.getBudget(coupleNos);
+	
 %>
 <!DOCTYPE html>
 <html>
@@ -94,7 +96,7 @@ html, body, h1, h2, h3, h4, h5 {
 					if (result != null) {
 						for (var i = 0; i < length; i++) {
 							table.rows[i + 1].cells[0].innerHTML = result.budgets[i].categoryName;
-							table.rows[i + 1].cells[1].innerHTML = result.budgets[i].budgetName;
+							table.rows[i + 1].cells[1].innerHTML = result.budgets[i].budgetName+'<button onclick="blabla('+result.budgets[i].budgetNo+')" class="w3-btn w3-theme" >댓글</button>';
 							table.rows[i + 1].cells[2].innerHTML = result.budgets[i].budgetAmount;
 							if(result.budgets[i].budgetYn == 'Y'){
 								table.rows[i + 1].cells[3].innerHTML = '<button onclick="" class="w3-btn w3-theme" disabled>채택</button>';

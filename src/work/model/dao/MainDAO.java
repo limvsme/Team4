@@ -103,4 +103,57 @@ public class MainDAO {
 		}
 		return -1;
 	}
+	
+	public String selectCoupleName(int coupleNo) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			conn = factory.getConnection();
+			String sql = "select couple_name from couple where COUPLE_NO=?";
+
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, coupleNo);
+
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return rs.getString(1);
+			}
+
+		} catch(SQLException e) {
+			System.out.println("커플명 조회 > SQLException");
+			e.printStackTrace();
+		} finally {
+			factory.close(conn, pstmt, rs);
+		}
+		return null;
+	}
+	
+	public ArrayList<String> selectNameNname(int coupleNo) {
+		ArrayList<String> result = new ArrayList<String>();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			conn = factory.getConnection();
+			String sql = "select member_name from couple,member where member.COUPLE_NO = couple.COUPLE_NO and member.couple_no=?";
+
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, coupleNo);
+
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				result.add(rs.getString(1));
+			}
+				return result;
+		} catch(SQLException e) {
+			System.out.println("커플명 조회 > SQLException");
+			e.printStackTrace();
+		} finally {
+			factory.close(conn, pstmt, rs);
+		}
+		return null;
+	}
 }
