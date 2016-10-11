@@ -31,10 +31,8 @@ html, body, h1, h2, h3, h4, h5 {
 			for (i = 0; i < allTable.length; i++) {
 				allTable[i].style.display = "none";
 			}
-			var commonIndex = 0;
 		}
 		function showDetail(index) {
-			commonIndex = index;
 			var table = document.getElementById("detailTable" + index);
 			if (table.style.display == "none") {
 				budgetRequest(index);
@@ -65,17 +63,23 @@ html, body, h1, h2, h3, h4, h5 {
 		function responseJson(xhr) {
 			console.log('xhr:', xhr);
 			if (xhr.readyState == 4 && xhr.status == 200) {
-				var table = document
-						.getElementById("detailTable" + commonIndex);
-
 				var result = eval("(" + xhr.responseText + ")");// json형식의 문자열을 json객체로 바꿔줘
+				var table = document
+						.getElementById("detailTable" + result.budgets[0].budgetPaperNo);
+
+				
 				console.log("result:", result);
+				console.log("result.budgets[0].length:"+result.budgets[0].length);
 				if(typeof result.budgets[0] != "undefined"){
+					console.log("typeof result.budgets[0] != undefined");
 				var length = Number(result.budgets[0].length);
 				console.log(result.budgets[0].id);
-				} else {var length = 0;}
+				} else {
+					console.log("typeof result.budgets[0] == undefined");
+					var length = 0;
+					}
 				console.log("result.length", length);
-				
+
 				if (length != 0) {
 					var html = '';
 					var addHtml = '<tr><td></td><td></td><td></td><td><button onclick="showModal()" class="w3-btn w3-theme">댓글</button></td></tr>'
@@ -83,7 +87,7 @@ html, body, h1, h2, h3, h4, h5 {
 					if (result != null) {
 						for (var i = 0; i < length; i++) {
 							html += addHtml;
-							document.getElementById('tbody' + commonIndex).innerHTML = html;
+							document.getElementById('tbody' + result.budgets[0].budgetPaperNo).innerHTML = html;
 						}
 					}
 
@@ -93,18 +97,18 @@ html, body, h1, h2, h3, h4, h5 {
 							table.rows[i + 1].cells[1].innerHTML = result.budgets[i].budgetName;
 							table.rows[i + 1].cells[2].innerHTML = result.budgets[i].budgetAmount;
 							if(result.budgets[i].budgetYn == 'Y'){
-								table.rows[i + 1].cells[3].innerHTML = '<button onclick="showModal()" class="w3-btn w3-theme" disabled>채택</button>';
+								table.rows[i + 1].cells[3].innerHTML = '<button onclick="" class="w3-btn w3-theme" disabled>채택</button>';
 							} else if (result.budgets[i].id == '<%=session.getAttribute("userId")%>') {
-								table.rows[i + 1].cells[3].innerHTML = '<button onclick="showModal()" class="w3-btn w3-theme">삭제</button>';
+								table.rows[i + 1].cells[3].innerHTML = '<button onclick="deleteList('+result.budgets[i].budgetPaperNo+','+result.budgets[i].budgetNo+')" class="w3-btn w3-theme">삭제</button>';
 							} else {
-								table.rows[i + 1].cells[3].innerHTML = '<button onclick="showModal()" class="w3-btn w3-theme">수락</button>';
+								table.rows[i + 1].cells[3].innerHTML = '<button onclick="acceptList('+result.budgets[i].budgetPaperNo+','+result.budgets[i].budgetNo+')" class="w3-btn w3-theme">수락</button>';
 							}
 						}
 					} else {
 						alert('오류');
 					}
 				} else {
-					document.getElementById('tbody'+commonIndex).innerHTML = '<tr><td colspan="4">검색된 내용 없음.</td></tr>'
+					document.getElementById('tbody'+result.budgets[0].budgetPaperNo).innerHTML = '<tr><td colspan="4">검색된 내용 없음.</td></tr>'
 				}
 			}
 		}
@@ -115,6 +119,8 @@ html, body, h1, h2, h3, h4, h5 {
 			var categoryNo = document.getElementById("categoryNo"+index).value;
 			var budgetName = document.getElementById("budgetName"+index).value;
 			var budgetAmount = document.getElementById("budgetAmount"+index).value;
+			document.getElementById("budgetName"+index).value = '';
+			document.getElementById("budgetAmount"+index).value = '';
 			
 			var params = "";
 			params += "action=insertBudget";
@@ -124,24 +130,55 @@ html, body, h1, h2, h3, h4, h5 {
 			params += "&budgetAmount="+budgetAmount
 			//응답데이터 타입 =json
 			params += "&responseText=json"
-			var callback = responseJson;
 			method = "GET";
+			var callback = responseJson;
 			//js/ajax.js 스크립트이용해서 ajax 서버요청
 			new ajax.xhr.Request(url, params, callback, method)
 		}
 		
-		function deleteList(index) {
+		function deleteList(index,no) {
 			var url = "Controller";
 			var params = "";
-			params += "action=budgetIndex&";
-			params += "budgetPaperNo=" + index;
+			params += "action=deleteList&";
+			params += "budgetNo=" + no;
+			params += "&budgetPaperNo=" + index;
 			//응답데이터 타입 =json
 			params += "&responseText=json"
-			var callback = responseJson;
 			method = "GET";
 			//js/ajax.js 스크립트이용해서 ajax 서버요청
-			new ajax.xhr.Request(url, params, callback, method)
+			new ajax.xhr.Request(url, params, deleteResult, method)
 		}
+			
+			function deleteResult(xhr) {
+				if (xhr.readyState == 4 && xhr.status == 200) {
+					var result = eval("(" + xhr.responseText + ")");
+					if(result.answer == 'true'){
+						budgetRequest(result.budgetPaperNo);
+					}
+				}
+			}
+			
+			function acceptList(index,no) {
+				var url = "Controller";
+				var params = "";
+				params += "action=listY&";
+				params += "budgetNo=" + no;
+				params += "&budgetPaperNo=" + index;
+				//응답데이터 타입 =json
+				params += "&responseText=json"
+				method = "GET";
+				//js/ajax.js 스크립트이용해서 ajax 서버요청
+				new ajax.xhr.Request(url, params, acceptResult, method)
+			}
+				
+				function acceptResult(xhr) {
+					if (xhr.readyState == 4 && xhr.status == 200) {
+						var result = eval("(" + xhr.responseText + ")");
+						if(result.answer == 'true'){
+							budgetRequest(result.budgetPaperNo);
+						}
+					}
+				}
 		
 		
 	</script>
@@ -272,7 +309,7 @@ html, body, h1, h2, h3, h4, h5 {
 					</span>
 					<hr class="w3-clear">
 					<span class="debits">
-						<form  id="insertBudget">
+						
 						<table class="w3-table-all w3-margin-bottom" id="detailTable<%=tempNo%>">
 							<thead>
 								<tr>
@@ -297,14 +334,15 @@ html, body, h1, h2, h3, h4, h5 {
   									<option value="4">기타</option>
 									</select>
 									</td>
-									
+									<form  id="insertBudget">
 									<td><input class="w3-input" id="budgetName<%=tempNo %>" placeholder="신규항목 내용입력"></td>
 									<td><input class="w3-input" id="budgetAmount<%=tempNo %>" placeholder="신규항목 금액입력"></td>
 									<td><button type="button" onclick="insertBudget('<%=tempNo %>')"class="w3-btn w3-theme">저장</button></td>
+									</form>
 								</tr>
 							</tfoot>
 						</table>
-						</form>
+						
 					</span>
 				</div>
 				<%

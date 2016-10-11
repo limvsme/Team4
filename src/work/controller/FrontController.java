@@ -68,46 +68,45 @@ public class FrontController extends HttpServlet {
 	//
 	//	}
 
-	public ArrayList<String> denyUseridList;
+	public ArrayList<String> denyUserIdList;
 
 	public void init() {
 		System.out.println("### context init call...");
 		ServletContext application = getServletContext();
-		String denyUserid = application.getInitParameter("denyUserid");
+		String denyUserId = application.getInitParameter("denyUserId");
 
 		// test,admin
-		denyUseridList = new ArrayList<String>();
-		String[] deny = denyUserid.split(",");
-		for (String userid : deny) {
-			denyUseridList.add(userid);
+		denyUserIdList = new ArrayList<String>();
+		String[] deny = denyUserId.split(",");
+		for (String userId : deny) {
+			denyUserIdList.add(userId);
 		}
-		System.out.println("## denyUSeridList: " + denyUseridList);
+		System.out.println("## denyUserIdList: " + denyUserIdList);
 	}
 
 	private void responseText(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		System.out.println("idCheck");
-		String userid = request.getParameter("userId");
+		String userId = request.getParameter("userId");
 		String responseDataType = request.getParameter("responseDataType");
-		System.out.println(userid + " " + responseDataType);
-		System.out.println("userid"+userid);
+		System.out.println(userId + " " + responseDataType);
+		System.out.println("userId"+userId);
 		// 응답 위한 출력 스트림 객체생성
 		PrintWriter out = response.getWriter();
 		// 응답위한 contentType(mime-type) 설정 : @see tomcat\conf\web.xml
 		response.setContentType("text/plain");
-		if (userid != null && userid.trim().length() > 0) {
+		if (userId != null && userId.trim().length() > 0) {
 			// 4. 아이디 허용불가 : deny = denyUseridList collection 검색
-			for (String denyUserid : denyUseridList) {
+			for (String denyUserid : denyUserIdList) {
 				// if(userid.equals(denyUserid)){
 				// if(userid.startsWith(denyUserid)){
-				if (userid.indexOf(denyUserid) >= 0) {
+				if (userId.indexOf(denyUserid) >= 0) {
 					// 4. 아이디 허용불가
 					out.write("deny");
 					return;
 				}
 			}
-
-			boolean isUserid = dao.isUserId(userid);
-			if (isUserid) {
+			boolean isUserId = dao.isUserId(userId);
+			if (isUserId) {
 				// 3 아이디 중복 : true
 				out.write("true");
 			} else {
@@ -117,6 +116,57 @@ public class FrontController extends HttpServlet {
 		} else {
 			// 1. 아이디 미입력 : required
 			out.write("required");
+		}
+	}
+	
+	/**idCheck 응답 데이터 xml 응답처리메서드 <valid>true</valid>*/
+	protected void responseXmlDoc(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String userId = request.getParameter("userId");
+		PrintWriter out = response.getWriter();
+		response.setContentType("text/xml");
+		response.setHeader("Cache-Control", "no-cache");
+		
+		if (userId != null && userId.trim().length()>0) {  
+			for(String denyUserId : denyUserIdList){ //거부하는 아이디리스트크기만큼 넣어주고 반복
+				if(userId.startsWith(denyUserId)){
+					out.write("<valid>deny</valid>");
+					return;
+				}
+			}
+			if (dao.isUserId(userId)) {
+				out.write("<valid>true</valid>");
+			} else {
+				out.write("<valid>false</valid>");
+			}
+		} else {
+			out.write("<valid>required</valid>");
+		}
+	}
+	
+	/**idCheck 응답데이터 json 응답처리메서드*/
+	protected void responseJson(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String userId = request.getParameter("userId");
+		System.out.println("Json userId:"+userId);
+		PrintWriter out = response.getWriter();
+		response.setContentType("text/plain");
+		response.setHeader("Cache-Control", "no-cache");
+		
+		if (userId!=null&&userId.trim().length()>0) {  
+			for (String denyUserId : denyUserIdList) { //거부하는 아이디리스트크기만큼 넣어주고 반복
+				if (userId.equalsIgnoreCase(denyUserId)) {
+					out.write("{'valid':'deny'}");
+					return;
+				}
+			}
+			if (dao.isUserId(userId)) {
+				out.write("{'valid':'true'}");
+			} else {
+				out.write("{'valid':'false'}");
+			}
+		} else {
+			out.write("{'valid':'required'}");
 		}
 	}
 
@@ -195,15 +245,23 @@ public class FrontController extends HttpServlet {
 	 */
 	protected void join(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String userId = request.getParameter("userId");
-		String userPw = request.getParameter("userpw");
-		String userName = request.getParameter("name");
-		System.out.println("Parameter : userId = "+ userId + ", userPw =" + userPw + ", userName = "+ userName);
+		String userPw = request.getParameter("userPw");
+		String userName = request.getParameter("userName");
+		String userPwCheck = request.getParameter("userPwCheck");
+		
+		System.out.println("Parameter : userId = "+ userId + ", userPw =" + userPw + ", userName = "+ userName + "check:"+userPwCheck);
+		System.out.println(userId == null);
+		System.out.println(userPw == null);
+		System.out.println(userName == null);
+		System.out.println(userPwCheck == null);
+		System.out.println(userId.length() == 0);
+		System.out.println(userPw.length() == 0);
+		System.out.println(userName.length() == 0);
 
-		if (userId==null || userId.trim().length() == 0 ||
-				userPw.trim().length() == 0 ||
-				userName.trim().length() == 0) {
+		if (userId == null || userPw == null || userName == null  || userId.length() == 0 || userPw.length() == 0 || userName.length() == 0 ) {
 			request.setAttribute("message", "회원가입 필수 항목을 모두 입력하시기 바랍니다.");
-			request.getRequestDispatcher("error/error.jsp").forward(request, response);
+			System.out.println("컨트롤러 join 에러1");
+			request.getRequestDispatcher("error.jsp").forward(request, response);
 		} else {
 			Member dto = new Member();
 			int result = userService.join(userId, userPw, userName);
@@ -213,25 +271,24 @@ public class FrontController extends HttpServlet {
 				StringBuilder message = new StringBuilder();
 				message.append(userName);
 				message.append("(");
-				message.append(Utility.convertSecureCode(userId, 3));
+				message.append(userId);
 				message.append(")");
 				message.append("님 회원가입완료되었습니다.");
 				message.append("<br>");
 				message.append("로그인후 서비스를 이용하시기 바랍니다.");
 				request.setAttribute("message", message);
-
 				// request.setAttribute("message", name + "님
 				// 회원가입완료되었습니다.<br>로그인후 서비스를 이용하시기 바랍니다.");
 				System.out.println("회원 가입 완료");
-				request.getRequestDispatcher("Index.html").forward(request, response);
+				request.getRequestDispatcher("Login.jsp").forward(request, response);
 			} else {
 				// 가입 실패
 				System.out.println("회원 가입 실패");
 				request.setAttribute("message", "회원가입이 정상적으로 진행되지 않았습니다.");
-				request.getRequestDispatcher("error/JoinError.jsp").forward(request, response);
+				
+				request.getRequestDispatcher("error.jsp").forward(request, response);
 			}
 		}
-
 	}      
 
 	/**
@@ -353,6 +410,11 @@ public class FrontController extends HttpServlet {
 
 		if(budgetlist!=null){
 			json +="{budgets:[";
+			if(budgetlist.size() == 0){
+				json+= "{'budgetPaperNo':'"+budgetPaperNo+
+						"','length':'"+budgetlist.size()+
+						"'}";
+			}
 			for(int i=0; i < budgetlist.size();i++){
 				if(i == budgetlist.size()-1) {
 					json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
@@ -361,6 +423,7 @@ public class FrontController extends HttpServlet {
 							"','categoryName':'"+budgetlist.get(i).getCategoryName()+
 							"','id':'"+budgetlist.get(i).getId()+
 							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+							"','budgetPaperNo':'"+budgetPaperNo+
 							"','budgetYn':'"+budgetlist.get(i).getBudgetYn()+
 							"'}";
 				} else {
@@ -371,6 +434,7 @@ public class FrontController extends HttpServlet {
 							"','id':'"+budgetlist.get(i).getId()+
 							"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
 							"','budgetYn':'"+budgetlist.get(i).getBudgetYn()+
+							"','budgetPaperNo':'"+budgetPaperNo+
 							"'},";
 				}
 			}
@@ -380,21 +444,30 @@ public class FrontController extends HttpServlet {
 		out.write(json);
 	}
 
-	private void idCheck(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+	protected void idCheck(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
 		System.out.println("idCheck");
-		String userid = request.getParameter("userid");
-		String responseDataType = request.getParameter("responseDataType");
-
-		switch(responseDataType) {
-		case "text" :
-		case "json" :
-			responseText(request,response);
-			break;
-		default : 
-			request.setAttribute("message", "지원하지 않는 응답데이터 형식입니다.");
+		String responseText = request.getParameter("responseText");
+		
+			switch(responseText){
+			case "text":
+				responseText(request,response);
+				break;
+			case "xml":
+				responseXmlDoc(request,response);
+				break;
+			case "json":
+				responseJson(request,response);
+				break;
+			default :
+			request.setAttribute("message", "지원하지않는 형식입니다 (idcheck controller)");
 			request.getRequestDispatcher("error.jsp").forward(request, response);
 		}
+
 	}
+	
+	
 
 	protected void insertBudget(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -428,6 +501,7 @@ public class FrontController extends HttpServlet {
 								"','categoryName':'"+budgetlist.get(i).getCategoryName()+
 								"','id':'"+budgetlist.get(i).getId()+
 								"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+								"','budgetPaperNo':'"+budgetPaperNo+
 								"'}";
 					} else {
 						json += "{'budgetName':'"+budgetlist.get(i).getBudgetName()+
@@ -436,6 +510,7 @@ public class FrontController extends HttpServlet {
 								"','categoryName':'"+budgetlist.get(i).getCategoryName()+
 								"','id':'"+budgetlist.get(i).getId()+
 								"','budgetAmount':'"+budgetlist.get(i).getBudgetAmount()+
+								"','budgetPaperNo':'"+budgetPaperNo+
 								"'},";
 					}
 				}
@@ -445,6 +520,36 @@ public class FrontController extends HttpServlet {
 			out.write(json);
 		}
 	}
+	
+	/* 컨트롤러 추가할 부분 : 항목 수락 or 삭제. 합칠 때 주의 */
+	private void listY(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		int budgetNo = Integer.parseInt(request.getParameter("budgetNo"));
+		String budgetPaperNo = request.getParameter("budgetPaperNo");
+		PrintWriter out = response.getWriter();
+		response.setContentType("text/plain");
+		response.setHeader("Cache-Control", "no-cache");
+		if(budget.listY(budgetNo)){
+			out.write("{'answer':'true','budgetPaperNo':'"+budgetPaperNo+"'}");
+		} else {
+			out.write("{'answer':'false','budgetPaperNo':'"+budgetPaperNo+"'}");
+		}
+		
+	}
+	
+	private void deleteList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		int budgetNo = Integer.parseInt(request.getParameter("budgetNo"));
+		String budgetPaperNo = request.getParameter("budgetPaperNo");
+		PrintWriter out = response.getWriter();
+		response.setContentType("text/plain");
+		response.setHeader("Cache-Control", "no-cache");
+		if(budget.deleteList(budgetNo)){
+			out.write("{'answer':'true','budgetPaperNo':'"+budgetPaperNo+"'}");
+		} else {
+			out.write("{'answer':'false','budgetPaperNo':'"+budgetPaperNo+"'}");
+		}
+		
+	}
+	/* 합칠 부분 끝 */
 
 	/**
 	 * get, post 요청을 처리하는 서비스 메서드
@@ -488,6 +593,12 @@ public class FrontController extends HttpServlet {
 				break;
 			case "insertBudget":
 				insertBudget(request,response);
+				break;
+			case "listY":
+				listY(request,response);
+				break;
+			case "deleteList":
+				deleteList(request,response);
 				break;
 			default:
 				// 지원하지 않는 요청 오류 페이지 이동

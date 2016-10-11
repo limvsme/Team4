@@ -15,7 +15,7 @@
   </servlet-mapping>
   
   <context-param>
-      <param-name>denyUserid</param-name>
+      <param-name>denyUserId</param-name>
       <param-value>test,admin</param-value>
    </context-param>
 </web-app>
